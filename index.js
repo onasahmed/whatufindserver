@@ -16,8 +16,10 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+const user = process.env.USER_NAME 
+const pass = process.env.USER_PASS
 
-const uri = "mongodb+srv://whatufind:kSPaiGqCbhas3dcu@cluster0.j55wfnv.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${user}:${pass}@cluster0.j55wfnv.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
