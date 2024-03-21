@@ -1,10 +1,21 @@
 {
     "version": 2,
-    "name": "whatufind",
     "builds": [
-       { "src": "index.js", "use": "@vercel/node" }
+        {
+            "src": "index.js",
+            "use": "@vercel/node"
+        
+        }
+
     ],
     "routes": [
-       { "src": "/(.*)", "dest": "/index.js" }
+        {
+            "src": "/(.*)",
+            "dest": "/",
+            "methods": [
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+            ]
+
+        }
     ]
- }
+}

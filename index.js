@@ -10,7 +10,10 @@ app.use(cors())
 app.use(express.json())
 const port = 3000
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('Hello World!!!!!!!!!!!!!!!!!!!!')
+})
+app.get('/shaon', (req, res)=>{
+  res.send('FoodPanda Rider')
 })
 //pass 
 app.listen(port, () => {
