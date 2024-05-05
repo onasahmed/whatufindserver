@@ -12,15 +12,16 @@ const port = 3000
 app.get('/', (req, res) => {
   res.send('Hello World!!!!!!!!!!!!!!!!!!!!')
 })
-app.get('/shaon', (req, res)=>{
+app.get('/shaon', (req, res) => {
   res.send('FoodPanda Rider')
 })
 //pass 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
-const user = process.env.USER_NAME 
+const user = process.env.USER_NAME
 const pass = process.env.USER_PASS
+console.log(user, pass);
 
 const uri = `mongodb+srv://${user}:${pass}@cluster0.j55wfnv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -112,7 +113,11 @@ async function run() {
     app.get("/services/:email", async (req, res) => {
       const userEmail = req.params.email;
       const usersServices = await servicesdata.find({ userEmail: userEmail }).sort({ _id: -1 }).toArray();
-      res.send(usersServices);
+      console.log(usersServices);
+      const usersProducts = await productsdata.find({ userEmail: userEmail }).sort({ _id: -1 }).toArray();
+      const all = [...usersServices, ...usersProducts]
+      console.log(all);
+      res.send(all);
     });
 
     //posting the product post of user to mongodb
@@ -211,52 +216,52 @@ async function run() {
       res.send(result)
     })
 
-      //getting single record from mongodb
-      app.get("/record/:email", async (req, res) => {
-        const userEmail = req.params.email;
-        const usersPosts = await recordData.find({ userEmail: userEmail }).sort({ _id: -1 }).toArray();
-        res.send(usersPosts);
-      });
-  
-  
-  
-      //posting the record to mongodb
-      app.post('/record', async (req, res) => {
-        const post = req.body
-        const result = await recordData.insertOne(post)
-        res.send(result)
-      })
-  
-  
-      //getting all record from mongodb
-      app.get('/records', async (req, res) => {
-        const result = await recordData.find().sort({ _id: -1 }).toArray()
-        res.send(result)
-      })
-  
-      //getting single record from mongodb
-      app.get("/interest/:email", async (req, res) => {
-        const userEmail = req.params.email;
-        const usersPosts = await interestData.find({ userEmail: userEmail }).sort({ _id: -1 }).toArray();
-        res.send(usersPosts);
-      });
-  
-  
-  
-      //posting the record to mongodb
-      app.post('/interest', async (req, res) => {
-        const post = req.body
-        const result = await interestData.insertOne(post)
-        res.send(result)
-      })
-  
-  
-      //getting all record from mongodb
-      app.get('/interests', async (req, res) => {
-        const result = await interestData.find().sort({ _id: -1 }).toArray()
-        res.send(result)
-      })
-  
+    //getting single record from mongodb
+    app.get("/record/:email", async (req, res) => {
+      const userEmail = req.params.email;
+      const usersPosts = await recordData.find({ userEmail: userEmail }).sort({ _id: -1 }).toArray();
+      res.send(usersPosts);
+    });
+
+
+
+    //posting the record to mongodb
+    app.post('/record', async (req, res) => {
+      const post = req.body
+      const result = await recordData.insertOne(post)
+      res.send(result)
+    })
+
+
+    //getting all record from mongodb
+    app.get('/records', async (req, res) => {
+      const result = await recordData.find().sort({ _id: -1 }).toArray()
+      res.send(result)
+    })
+
+    //getting single record from mongodb
+    app.get("/interest/:email", async (req, res) => {
+      const userEmail = req.params.email;
+      const usersPosts = await interestData.find({ userEmail: userEmail }).sort({ _id: -1 }).toArray();
+      res.send(usersPosts);
+    });
+
+
+
+    //posting the record to mongodb
+    app.post('/interest', async (req, res) => {
+      const post = req.body
+      const result = await interestData.insertOne(post)
+      res.send(result)
+    })
+
+
+    //getting all record from mongodb
+    app.get('/interests', async (req, res) => {
+      const result = await interestData.find().sort({ _id: -1 }).toArray()
+      res.send(result)
+    })
+
 
 
 
