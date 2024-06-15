@@ -24,7 +24,7 @@ const user = process.env.USER_NAME
 const pass = process.env.USER_PASS
 console.log(user, pass);
 
-const uri = `mongodb+srv://${user}:${pass}@cluster0.j55wfnv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://${user}:${pass}@whatufind-cluster.2omxzv7.mongodb.net/?retryWrites=true&w=majority&appName=whatufind-cluster`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -66,19 +66,44 @@ async function run() {
 
 
     //posting the user info to mongodb
+    // app.post('/users', async (req, res) => {
+    //   const user = req.body
+
+    //   const result = await database.insertOne(user)
+    //   res.send(result)
+
+    // })
     app.post('/users', async (req, res) => {
-      const user = req.body
+      try {
+        const user = req.body;
+        console.log(user);
+        const email = user.email;
 
-      const result = await database.insertOne(user)
-      res.send(result)
+        // Check if the email already exists in the database
+        const existingUser = await database.findOne({ email: email });
 
-    })
+        if (existingUser) {
+          // If the email exists, send a response indicating the user already exists
+          return res.status(400).send({ message: 'User with this email already exists' });
+        }
+
+        // If the email does not exist, proceed to create the new user
+        const result = await database.insertOne(user);
+        res.send(result);
+      } catch (error) {
+        // Handle any errors that occur during the process
+        console.error(error);
+        res.status(500).send({ message: 'An error occurred while creating the user' });
+      }
+    });
+
     app.get("/users/:email", async (req, res) => {
       const userEmail = req.params.email;
       const userData = await database.findOne({ email: userEmail });
-     console.log(userData);
+      console.log(userData);
       res.send(userData);
     });
+
 
     app.patch('/users/:email', async (req, res) => {
       const email = req.params.email;
@@ -112,6 +137,81 @@ async function run() {
         res.status(500).send(error);
       }
     });
+    // app.patch('/updateUser/:email', async (req, res) => {
+    //   const email = req.params.email;
+    //   const { displayName, address, profession } = req.body;
+    //   const query = postData.find({userEmail: email})
+    //   console.log(query);
+    //   const result2 = await postData.updateMany(
+    //    query,
+    //     {
+    //       $set: {userName: displayName}
+    //     },
+    //     {
+    //       upsert: true
+    //     }
+    //   );
+
+    //   const updateData = {};
+    //   if (displayName) updateData.displayName = displayName;
+    //   if (address) updateData.address = address;
+    //   if (profession) updateData.profession = profession;
+
+    //   const result = await database.updateOne(
+    //     { email: email },
+    //     {
+    //       $set: updateData
+    //     },
+    //     {
+    //       upsert: true
+    //     }
+    //   );
+    //   res.send(result)
+    // })
+    app.patch('/updateUser/:email', async (req, res) => {
+      const email = req.params.email;
+      const { displayName, address, profession } = req.body;
+
+      try {
+        // Update the posts with the new userName if displayName is provided
+        if (displayName) {
+          await postData.updateMany(
+            { userEmail: email },
+            { $set: { userName: displayName } },
+            { upsert: false } // Upsert false because we only want to update existing posts
+          );
+        }
+
+        // Construct update data conditionally
+        const updateData = {};
+        if (displayName) updateData.displayName = displayName;
+        if (address) updateData.address = address;
+        if (profession) updateData.profession = profession;
+
+        // Only proceed with the update if there's something to update
+        let result = null;
+        if (Object.keys(updateData).length > 0) {
+          result = await database.updateOne(
+            { email: email },
+            { $set: updateData },
+            { upsert: true } // Upsert true if you want to create a document if it does not exist
+          );
+        }
+
+        // Send response based on the result
+        if (result && result.matchedCount > 0) {
+          res.send(result);
+        } else if (result && result.upsertedCount > 0) {
+          res.send({ success: true, message: "User created successfully", result });
+        } else {
+          res.send({ success: false, message: "No user found to update or create" });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ success: false, message: "Internal Server Error" });
+      }
+    });
+
 
     //posting the single post of user to mongodb
     app.post('/post', async (req, res) => {
